@@ -1,0 +1,6 @@
+@Lets_Connect_HostAddress = http://localhost:5170
+
+GET {{Lets_Connect_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
