@@ -17,7 +17,6 @@ namespace Lets_Connect.Controllers
         }
 
         [HttpGet]
-
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             var users = await _dataContext.Users.ToListAsync();
