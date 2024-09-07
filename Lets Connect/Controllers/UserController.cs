@@ -5,10 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lets_Connect.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+{   
+    public class UserController : BaseApiController 
     {
         private readonly DataContext _dataContext;
         public UserController(DataContext dataContext)
