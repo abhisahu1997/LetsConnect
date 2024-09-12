@@ -1,4 +1,5 @@
 using Lets_Connect.Extensions;
+using Lets_Connect.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:5000", "https://localhost:5000", "http://localhost:4200", "https://localhost:4200"));
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
