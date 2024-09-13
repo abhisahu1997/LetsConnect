@@ -25,24 +25,25 @@ namespace Lets_Connect.Controllers
         {
             if( await UserExists(registerDto.UserName)) return BadRequest("UserName already exists");
 
-            using var hmac = new HMACSHA512();
+            //using var hmac = new HMACSHA512();
 
-            var user = new User
-            {
-                UserName = registerDto.UserName.ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt = hmac.Key
-            };
+            //var user = new User
+            //{
+            //    UserName = registerDto.UserName.ToLower(),
+            //    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+            //    PasswordSalt = hmac.Key
+            //};
 
-            dataContext.Users.Add(user);
-            await dataContext.SaveChangesAsync();
+            //dataContext.Users.Add(user);
+            //await dataContext.SaveChangesAsync();
 
-            return new UserDto
-            {
-                UserName = user.UserName,
-                Token = tokenService.CreateToken(user),
-                
-            };
+            //return new UserDto
+            //{
+            //    UserName = user.UserName,
+            //    Token = tokenService.CreateToken(user),
+
+            //};
+            return Ok();
         }
 
         private async Task<bool> UserExists(string userName)

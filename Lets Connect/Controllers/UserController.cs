@@ -1,33 +1,45 @@
-﻿using Lets_Connect.Data;
+﻿using AutoMapper;
+using Lets_Connect.Data.DTO;
+using Lets_Connect.Interfaces;
 using Lets_Connect.Model;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Lets_Connect.Controllers
-{   
+{
+    [Authorize]
     public class UserController : BaseApiController 
     {
-        private readonly DataContext _dataContext;
-        public UserController(DataContext dataContext)
+        private readonly IUserRepository userRepository;
+        public UserController(IUserRepository userRepository)
         {
-            _dataContext = dataContext;
+            this.userRepository = userRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
-            var users = await _dataContext.Users.ToListAsync();
+            var users = await userRepository.GetMembersAsync();
 
-            return users;
+            return Ok(users);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
-        {
-            var user = await _dataContext.Users.FindAsync(id);
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<User>> GetUser(int id)
+        //{
+        //    var user = await userRepository.GetUSerByIdAsync(id);
 
-            if(user == null) return NotFound();
+        //    if(user == null) return NotFound();
+
+        //    return user;
+        //}
+
+        [HttpGet("{username}")]
+        public async Task<ActionResult<MemberDto>> GetUser(string name)
+        {
+            var user = await userRepository.GetMemberAsync(name);
+
+            if (user == null) return NotFound();
 
             return user;
         }
