@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using Lets_Connect.Data.DTO;
+﻿using Lets_Connect.Data.DTO;
 using Lets_Connect.Interfaces;
-using Lets_Connect.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,20 +22,10 @@ namespace Lets_Connect.Controllers
             return Ok(users);
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<User>> GetUser(int id)
-        //{
-        //    var user = await userRepository.GetUSerByIdAsync(id);
-
-        //    if(user == null) return NotFound();
-
-        //    return user;
-        //}
-
         [HttpGet("{username}")]
-        public async Task<ActionResult<MemberDto>> GetUser(string name)
+        public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            var user = await userRepository.GetMemberAsync(name);
+            var user = await userRepository.GetMemberAsync(username);
 
             if (user == null) return NotFound();
 
