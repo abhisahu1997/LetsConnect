@@ -55,7 +55,9 @@ namespace Lets_Connect.Controllers
 
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await dataContext.Users.FirstOrDefaultAsync(x => x.UserName.ToLower() == loginDto.UserName.ToLower());
+            var user = await dataContext.Users
+                .Include(y => y.Photos).
+                FirstOrDefaultAsync(x => x.UserName.ToLower() == loginDto.UserName.ToLower());
 
             if (user == null) return Unauthorized("Invalid username or password");
 
@@ -72,6 +74,7 @@ namespace Lets_Connect.Controllers
             {
                 UserName = user.UserName,
                 Token = tokenService.CreateToken(user),
+                PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
 
             };
         }

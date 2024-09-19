@@ -1,4 +1,5 @@
 ﻿using Lets_Connect.Data;
+using Lets_Connect.Helpers;
 using Lets_Connect.Interfaces;
 using Lets_Connect.Services;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,9 @@ namespace Lets_Connect.Extensions
 
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPhotoService, PhotoService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
             return services;
         }
