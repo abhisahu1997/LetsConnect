@@ -1,4 +1,5 @@
-﻿using Lets_Connect.Data;
+﻿using AutoMapper;
+using Lets_Connect.Data;
 using Lets_Connect.Data.DTO;
 using Lets_Connect.Interfaces;
 using Lets_Connect.Model;
@@ -15,35 +16,36 @@ namespace Lets_Connect.Controllers
     {
         private readonly DataContext dataContext;
         private readonly ITokenService tokenService;
-        public AccountController(DataContext dataContext, ITokenService tokenService)
+        private readonly IMapper mapper;
+        public AccountController(DataContext dataContext, ITokenService tokenService, IMapper mapper)
         {
             this.dataContext = dataContext;
             this.tokenService = tokenService;
+            this.mapper = mapper;
         }
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if( await UserExists(registerDto.UserName)) return BadRequest("UserName already exists");
 
-            //using var hmac = new HMACSHA512();
+            using var hmac = new HMACSHA512();
 
-            //var user = new User
-            //{
-            //    UserName = registerDto.UserName.ToLower(),
-            //    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-            //    PasswordSalt = hmac.Key
-            //};
+            var user = mapper.Map<User>(registerDto);
 
-            //dataContext.Users.Add(user);
-            //await dataContext.SaveChangesAsync();
+            user.UserName = registerDto.UserName.ToLower();
+            user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
+            user.PasswordSalt = hmac.Key;
 
-            //return new UserDto
-            //{
-            //    UserName = user.UserName,
-            //    Token = tokenService.CreateToken(user),
+            dataContext.Users.Add(user);
+            await dataContext.SaveChangesAsync();
 
-            //};
-            return Ok();
+            return new UserDto
+            {
+                UserName = user.UserName,
+                Token = tokenService.CreateToken(user),
+                KnownAs = user.KnownAs,
+
+            };
         }
 
         private async Task<bool> UserExists(string userName)
@@ -73,6 +75,7 @@ namespace Lets_Connect.Controllers
             return new UserDto
             {
                 UserName = user.UserName,
+                KnownAs = user.KnownAs,
                 Token = tokenService.CreateToken(user),
                 PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
 

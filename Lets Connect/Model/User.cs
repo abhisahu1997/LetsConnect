@@ -9,7 +9,7 @@ namespace Lets_Connect.Model
         public byte[] PasswordHash { get; set; } = [];
         public byte[] PasswordSalt { get; set; } = [];
         public DateOnly DateOfBirth { get; set; }
-        public required string knownAs { get; set; }
+        public required string KnownAs { get; set; }
         public DateTime Created { get; set; } = DateTime.UtcNow;
         public DateTime LastActive { get; set; } = DateTime.UtcNow;
         public required string Gender { get; set; }
