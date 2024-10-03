@@ -9,6 +9,7 @@ import { errorInterceptor } from './interceptors/error.interceptor';
 import { jwtInterceptor } from './interceptors/jwt.interceptor';
 import { NgxSpinnerModule} from 'ngx-spinner';
 import { loadingInterceptor } from './interceptors/loading.interceptor';
+import { TimeagoModule } from "ngx-timeago";
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }),
@@ -18,5 +19,5 @@ export const appConfig: ApplicationConfig = {
               provideToastr({
                 positionClass: 'toast-bottom-right'
               }),
-              importProvidersFrom(NgxSpinnerModule)]
+              importProvidersFrom(NgxSpinnerModule, TimeagoModule.forRoot())]
 };

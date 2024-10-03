@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using Azure.Identity;
 using Lets_Connect.Data.DTO;
 using Lets_Connect.Extensions;
+using Lets_Connect.Helpers;
 using Lets_Connect.Interfaces;
 using Lets_Connect.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Lets_Connect.Controllers
 {
@@ -24,9 +23,12 @@ namespace Lets_Connect.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
         {
-            var users = await userRepository.GetMembersAsync();
+            userParams.CurrentUserName = User.GetUserName();
+            var users = await userRepository.GetMembersAsync(userParams);
+            
+            Response.AddPaginationHeader(users);
 
             return Ok(users);
         }

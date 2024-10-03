@@ -1,4 +1,5 @@
 ﻿using Lets_Connect.Data.DTO;
+using Lets_Connect.Helpers;
 using Lets_Connect.Model;
 
 namespace Lets_Connect.Interfaces
@@ -12,6 +13,6 @@ namespace Lets_Connect.Interfaces
         Task<User?> GetUSerByIdAsync(int id);
         Task<User?> GetUSerByNameAsync(string name);
         Task<MemberDto?> GetMemberAsync(string username);
-        Task<IEnumerable<MemberDto?>> GetMembersAsync();
+        Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams);
     }
 }
