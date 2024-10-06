@@ -13,6 +13,7 @@ namespace Lets_Connect.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserLike> Likes { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +29,14 @@ namespace Lets_Connect.Data
                 .WithMany(l => l.LikedByUsers)
                 .HasForeignKey(s => s.TargetUserId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Message>().HasOne(x => x.Recepient)
+                .WithMany(x => x.MessagesReceived)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>().HasOne(x => x.Sender)
+                .WithMany(x => x.MessagesSent)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

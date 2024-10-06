@@ -16,6 +16,9 @@ namespace Lets_Connect.Helpers
             CreateMap<MemberUpdateDto, User>();
             CreateMap<RegisterDto, User>();
             CreateMap<string, DateOnly>().ConvertUsing(s => DateOnly.Parse(s));
+            CreateMap<Message, MessageDto>()
+                .ForMember(d => d.SenderPhotoUrl, o => o.MapFrom(s => s.Sender.Photos.FirstOrDefault(x => x.IsMain)!.Url))
+                .ForMember(d => d.RecepientPhotoUrl, o => o.MapFrom(s => s.Recepient.Photos.FirstOrDefault(x => x.IsMain)!.Url));
         }
 
     }
