@@ -23,7 +23,7 @@ namespace Lets_Connect.Controllers
             var sender = await userRepository.GetUSerByNameAsync(username);
             var recepient = await userRepository.GetUSerByNameAsync(createMessageDto.RecepientUserName);
 
-            if (recepient == null || sender == null)
+            if (recepient == null || sender == null || sender.UserName == null || recepient.UserName == null)
                 return BadRequest("Cannot send message");
 
             var Message = new Message

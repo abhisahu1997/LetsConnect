@@ -1,4 +1,5 @@
 ﻿using Lets_Connect.Model;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -8,9 +9,9 @@ namespace Lets_Connect.Data
 {
     public class Seed
     {
-        public static async Task SeedUsers(DataContext context)
+        public static async Task SeedUsers(UserManager<User> userManager, RoleManager<Roles> roleManager)
         {
-            if (await context.Users.AnyAsync())
+            if (await userManager.Users.AnyAsync())
                 return;
 
             var userData = await File.ReadAllTextAsync("Data/UserSeedData.json");
@@ -21,18 +22,36 @@ namespace Lets_Connect.Data
             if (users == null)
                 return;
 
-            foreach (var user in users)
+            var roles = new List<Roles>
             {
-                using var hmac = new HMACSHA512();
+                new() {Name = "Member"},
+                new() {Name = "Admin"},
+                new() {Name = "Moderator"},
+            };
 
-                user.UserName = user.UserName.ToLower();
-                user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$word"));
-                user.PasswordSalt = hmac.Key;
-
-                context.Users.Add(user);    
+            foreach (var role in roles)
+            {
+                await roleManager.CreateAsync(role);
             }
 
-            await context.SaveChangesAsync();   
+            foreach (var user in users)
+            {
+                var status = await userManager.CreateAsync(user, "Pa$$word1");
+                await userManager.AddToRoleAsync(user, "Member");
+            }
+
+            var admin = new User
+            {
+                UserName = "admin",
+                KnownAs = "Admin",
+                Gender = "",
+                City = "",
+                Country = ""
+            };
+
+            await userManager.CreateAsync(admin, "Pa$$word1");
+            await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
+
         }
     }
 }

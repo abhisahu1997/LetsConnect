@@ -4,6 +4,6 @@ namespace Lets_Connect.Interfaces
 {
     public interface ITokenService
     {
-        string CreateToken(User user);
+        Task<string> CreateToken(User user);
     }
 }

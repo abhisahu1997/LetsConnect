@@ -1,6 +1,8 @@
 using Lets_Connect.Data;
 using Lets_Connect.Extensions;
 using Lets_Connect.Middleware;
+using Lets_Connect.Model;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,8 +40,10 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<User>>();
+    var roleMAnager = services.GetRequiredService<RoleManager<Roles>>();
     await context.Database.MigrateAsync();
-    await Seed.SeedUsers(context);
+    await Seed.SeedUsers(userManager, roleMAnager);
 }
 catch(Exception ex)
 {

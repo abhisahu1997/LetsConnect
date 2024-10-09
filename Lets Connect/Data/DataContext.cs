@@ -1,23 +1,24 @@
 ﻿using Lets_Connect.Model;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 
 namespace Lets_Connect.Data
 {
-    public class DataContext : DbContext
+    public class DataContext(DbContextOptions options) : IdentityDbContext<User, Roles, int, IdentityUserClaim<int>, UserRole, IdentityUserLogin<int>, 
+                                IdentityRoleClaim<int>, IdentityUserToken<int>>(options)
     {
-        public DataContext(DbContextOptions<DataContext> contextOptions) : base(contextOptions)
-        {
-            
-        }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<UserLike> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>().HasMany(ur => ur.UserRoles).WithOne(u => u.User).HasForeignKey(u => u.UserId).IsRequired();
+
+            modelBuilder.Entity<Roles>().HasMany(ur => ur.UserRoles).WithOne(u => u.Role).HasForeignKey(u => u.RoleId).IsRequired();
 
             modelBuilder.Entity<UserLike>().HasKey(k => new {k.SourceUserId, k.TargetUserId});
             modelBuilder.Entity<UserLike>().HasOne(s => s.SourceUser)
