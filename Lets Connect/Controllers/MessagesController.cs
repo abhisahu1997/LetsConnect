@@ -26,7 +26,7 @@ namespace Lets_Connect.Controllers
             if (recepient == null || sender == null || sender.UserName == null || recepient.UserName == null)
                 return BadRequest("Cannot send message");
 
-            var Message = new Message
+            var message = new Message
             {
                 Sender = sender,
                 Recepient = recepient,
@@ -35,8 +35,8 @@ namespace Lets_Connect.Controllers
                 Context = createMessageDto.Content
             };
 
-            messageRepository.AddMessage(Message);
-            if(await messageRepository.SaveAllAsync()) return Ok(mapper.Map<MessageDto>(Message));
+            messageRepository.AddMessage(message);
+            if(await messageRepository.SaveAllAsync()) return Ok(mapper.Map<MessageDto>(message));
             return BadRequest("Failed to save Message");
         }
 

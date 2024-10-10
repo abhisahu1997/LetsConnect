@@ -2,6 +2,7 @@
 using Lets_Connect.Helpers;
 using Lets_Connect.Interfaces;
 using Lets_Connect.Services;
+using Lets_Connect.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lets_Connect.Extensions
@@ -25,6 +26,8 @@ namespace Lets_Connect.Extensions
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+            services.AddSignalR();
+            services.AddSingleton<PresenseTracker>();
             
 
             return services;
