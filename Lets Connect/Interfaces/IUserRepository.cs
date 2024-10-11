@@ -7,8 +7,6 @@ namespace Lets_Connect.Interfaces
     public interface IUserRepository
     {
         void Update(User user);
-
-        Task<bool> SaveAllAsync();
         Task<IEnumerable<User>> GetUsersAsync();
         Task<User?> GetUSerByIdAsync(int id);
         Task<User?> GetUSerByNameAsync(string name);

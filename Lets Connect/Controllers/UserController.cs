@@ -12,12 +12,12 @@ namespace Lets_Connect.Controllers
     [Authorize]
     public class UserController : BaseApiController 
     {
-        private readonly IUserRepository userRepository;
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly IPhotoService photoService;
-        public UserController(IUserRepository userRepository, IMapper mapper, IPhotoService photoService)
+        public UserController(IUnitOfWork unitOfWork, IMapper mapper, IPhotoService photoService)
         {
-            this.userRepository = userRepository;
+            this.unitOfWork = unitOfWork;
             this.mapper = mapper;   
             this.photoService = photoService;
         }
@@ -26,7 +26,7 @@ namespace Lets_Connect.Controllers
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
         {
             userParams.CurrentUserName = User.GetUserName();
-            var users = await userRepository.GetMembersAsync(userParams);
+            var users = await unitOfWork.UserRepository.GetMembersAsync(userParams);
             
             Response.AddPaginationHeader(users);
 
@@ -36,7 +36,7 @@ namespace Lets_Connect.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            var user = await userRepository.GetMemberAsync(username);
+            var user = await unitOfWork.UserRepository.GetMemberAsync(username);
 
             if (user == null) return NotFound();
 
@@ -47,13 +47,13 @@ namespace Lets_Connect.Controllers
         public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
         {
          
-            var user = await userRepository.GetUSerByNameAsync(User.GetUserName());
+            var user = await unitOfWork.UserRepository.GetUSerByNameAsync(User.GetUserName());
 
             if (user == null) return BadRequest("Could not find the user");
 
             mapper.Map(memberUpdateDto, user);
 
-            if (await userRepository.SaveAllAsync()) return Ok();
+            if (await unitOfWork.Complete()) return Ok();
 
             return BadRequest("Failed to update the user");
         }
@@ -61,7 +61,7 @@ namespace Lets_Connect.Controllers
         [HttpPost("add-photo")]
         public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
         {
-            var user = await userRepository.GetUSerByNameAsync(User.GetUserName());
+            var user = await unitOfWork.UserRepository.GetUSerByNameAsync(User.GetUserName());
 
             if (user == null) return BadRequest("Could not find the user");
 
@@ -81,7 +81,7 @@ namespace Lets_Connect.Controllers
 
             user.Photos.Add(photo);
 
-            if (await userRepository.SaveAllAsync()) return CreatedAtAction(nameof(GetUser), new { username = user.UserName }, mapper.Map<PhotoDto>(photo));
+            if (await unitOfWork.Complete()) return CreatedAtAction(nameof(GetUser), new { username = user.UserName }, mapper.Map<PhotoDto>(photo));
 
             return BadRequest("Problem adding photo");
         }
@@ -89,7 +89,7 @@ namespace Lets_Connect.Controllers
         [HttpPut("set-profile-picture/{photoId:int}")]
         public async Task<ActionResult> SetProfilePicture(int photoId)
         {
-            var user = await userRepository.GetUSerByNameAsync(User.GetUserName());
+            var user = await unitOfWork.UserRepository.GetUSerByNameAsync(User.GetUserName());
             if (user == null) return BadRequest("Could not find the user");
 
             var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
@@ -100,7 +100,7 @@ namespace Lets_Connect.Controllers
             if(currentPhoto != null) currentPhoto.IsMain = false;
             photo.IsMain = true;
 
-            if(await userRepository.SaveAllAsync()) return NoContent();
+            if(await unitOfWork.Complete()) return NoContent();
 
             return BadRequest("Unable to set the profile picture");
         }
@@ -108,7 +108,7 @@ namespace Lets_Connect.Controllers
         [HttpDelete("delete-photo/{photoId:int}")]
         public async Task<ActionResult> DeletePhoto(int photoId)
         {
-            var user = await userRepository.GetUSerByNameAsync(User.GetUserName());
+            var user = await unitOfWork.UserRepository.GetUSerByNameAsync(User.GetUserName());
             if (user == null) return BadRequest("Could not find the user");
 
             var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
@@ -122,7 +122,7 @@ namespace Lets_Connect.Controllers
 
                 user.Photos.Remove(photo);
             }
-            if(await userRepository.SaveAllAsync()) { return NoContent(); }
+            if(await unitOfWork.Complete()) { return NoContent(); }
 
             return BadRequest("Problem Deleting Photos");
         }

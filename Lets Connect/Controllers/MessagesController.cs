@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Lets_Connect.Controllers
 {
     [Authorize]
-    public class MessagesController(IMessageRepository messageRepository, IUserRepository userRepository
+    public class MessagesController(IUnitOfWork unitOfWork
         , IMapper mapper): BaseApiController
     {
         [HttpPost]
@@ -20,8 +20,8 @@ namespace Lets_Connect.Controllers
             if (username == createMessageDto.RecepientUserName.ToLower())
                 return BadRequest("You cannot message yourself");
 
-            var sender = await userRepository.GetUSerByNameAsync(username);
-            var recepient = await userRepository.GetUSerByNameAsync(createMessageDto.RecepientUserName);
+            var sender = await unitOfWork.UserRepository.GetUSerByNameAsync(username);
+            var recepient = await unitOfWork.UserRepository.GetUSerByNameAsync(createMessageDto.RecepientUserName);
 
             if (recepient == null || sender == null || sender.UserName == null || recepient.UserName == null)
                 return BadRequest("Cannot send message");
@@ -35,8 +35,8 @@ namespace Lets_Connect.Controllers
                 Context = createMessageDto.Content
             };
 
-            messageRepository.AddMessage(message);
-            if(await messageRepository.SaveAllAsync()) return Ok(mapper.Map<MessageDto>(message));
+            unitOfWork.MessageRepository.AddMessage(message);
+            if(await unitOfWork.Complete()) return Ok(mapper.Map<MessageDto>(message));
             return BadRequest("Failed to save Message");
         }
 
@@ -44,7 +44,7 @@ namespace Lets_Connect.Controllers
         public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessageForUser([FromQuery] MessageParams messageParams)
         {
             messageParams.UserName = User.GetUserName();
-            var messages = await messageRepository.GetMessagesForUser(messageParams);
+            var messages = await unitOfWork.MessageRepository.GetMessagesForUser(messageParams);
             Response.AddPaginationHeader(messages);
             return messages;
         }
@@ -53,7 +53,7 @@ namespace Lets_Connect.Controllers
         public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessageThread(string username)
         {
             var currentUsername = User.GetUserName();
-            return Ok(await messageRepository.GetMessageThread(currentUsername, username));
+            return Ok(await unitOfWork.MessageRepository.GetMessageThread(currentUsername, username));
         }
         
         [HttpDelete("id")]
@@ -61,7 +61,7 @@ namespace Lets_Connect.Controllers
         {
             var username = User.GetUserName();
 
-            var message = await messageRepository.GetMessage(id);
+            var message = await unitOfWork.MessageRepository.GetMessage(id);
             if (message == null) return BadRequest("Cannot delete the message");
             if (message.SenderUserName != username && message.ReceiverUserName != username) return Forbid();
 
@@ -69,9 +69,9 @@ namespace Lets_Connect.Controllers
             if(message.ReceiverUserName == username) message.ReceipientDeleted = true;
 
             if(message is { SenderDeleted: true, ReceipientDeleted: true })
-                messageRepository.DeleteMessage(message);
+                unitOfWork.MessageRepository.DeleteMessage(message);
 
-            if (await messageRepository.SaveAllAsync()) return Ok();
+            if (await unitOfWork.Complete()) return Ok();
 
             return BadRequest("Problem deleting the message");
         }
